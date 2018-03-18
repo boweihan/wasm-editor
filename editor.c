@@ -7,6 +7,7 @@
 
 #include <ctype.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -25,6 +26,7 @@
 #define CTRL_KEY(k) ((k) & 0x1f)
 
 enum editorKey {
+	BACKSPACE = 127,
 	// this will autoincrement the rest of the constants
 	ARROW_LEFT = 1000,
 	ARROW_RIGHT,
@@ -62,6 +64,12 @@ struct editorConfig {
 };
 
 struct editorConfig E;
+
+/*** prototypes ***/
+// C programs are compiled in a single pass
+// Specify prototypes here to avoid implicit declaration errors
+
+void editorSetStatusMessage(const char *fmt, ...);
 
 /*** Terminal ***/
 
@@ -228,7 +236,45 @@ void editorAppendRow(char *s, size_t len) {
 	E.numrows++;
 }
 
-/*** file i/o ***/
+void editorRowInsertChar(erow *row, int at, int c) {
+	if (at < 0 || at > row->size) at = row->size;
+	row->chars = realloc(row->chars, row->size + 2); // make room for null byte
+	memmove(&row->chars[at + 1], &row->chars[at], row->size - at + 1);
+	row->size++;
+	row->chars[at] = c;
+	editorUpdateRow(row);
+}
+
+/*** Editor operations ***/
+
+void editorInsertChar(int c) {
+	if (E.cy == E.numrows) {
+		editorAppendRow("", 0);
+	}
+	editorRowInsertChar(&E.row[E.cy], E.cx, c);
+	E.cx++;
+}
+
+/*** File I/O ***/
+
+void *editorRowsToString(int *buflen) {
+	int totlen = 0;
+	int j;
+	for (j = 0; j < E.numrows; j++)
+		totlen += E.row[j].size + 1;
+	*buflen = totlen;
+
+	char *buf = malloc(totlen);
+	char *p = buf;
+	for (j = 0; j < E.numrows; j++) {
+		memcpy(p, E.row[j].chars, E.row[j].size);
+		p += E.row[j].size;
+		*p = '\n';
+		p++;
+	}
+
+	return buf;
+}
 
 void editorOpen(char *filename) {
 	free(E.filename); // strdup assumes you will free the memory
@@ -247,6 +293,29 @@ void editorOpen(char *filename) {
   }
   free(line);
   fclose(fp);
+}
+
+void editorSave() {
+	if (E.filename == NULL) return;
+
+	int len;
+	char *buf = editorRowsToString(&len);
+	// create new file if it doesn't exist and open it with read/write
+	// 0644 is standard permissions for file - owner read/write everyone else read
+	int fd = open(E.filename, O_RDWR | O_CREAT, 0644);
+	if (fd != -1) {
+		if (ftruncate(fd, len) != -1) {
+			if (write(fd, buf, len) == len) {
+				close(fd);
+				free(buf);
+				editorSetStatusMessage("%d bytes written to disk", len);
+				return;
+			}
+		}
+		close(fd);
+	}
+	free(buf);
+	editorSetStatusMessage("Can't save! I/O error: %s", strerror(errno));
 }
 
 /*** Append Buffer ***/
@@ -321,11 +390,17 @@ void editorMoveCursor(int key) {
 void editorProcessKeypress() {
 	int c = editorReadKey();
 	switch (c) {
+		case '\r':
+			/* TODO */
+			break;
 		case CTRL_KEY('q'):
 			// clear the screen on exit
 			write(STDOUT_FILENO, "\x1b[2J", 4);
 			write(STDOUT_FILENO, "\x1b[H", 3);
 			exit(0);
+			break;
+		case CTRL_KEY('s'):
+			editorSave();
 			break;
 		case HOME_KEY:
 			E.cx = 0;
@@ -333,6 +408,11 @@ void editorProcessKeypress() {
 		case END_KEY:
 			if (E.cy < E.numrows)
 				E.cx = E.row[E.cy].size;
+			break;
+		case BACKSPACE:
+		case CTRL_KEY('h'):
+		case DEL_KEY:
+			/* TODO */
 			break;
 		case PAGE_UP:
 		case PAGE_DOWN:
@@ -353,6 +433,13 @@ void editorProcessKeypress() {
 		case ARROW_LEFT:
 		case ARROW_RIGHT:
 			editorMoveCursor(c);
+			break;
+		case CTRL_KEY('l'):
+		case '\x1b':
+			// don't do anything for ctrl L (refresh) and escape sequences
+			break;
+		default:
+			editorInsertChar(c);
 			break;
 	}
 }
