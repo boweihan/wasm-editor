@@ -1,10 +1,9 @@
-/*** Dependencies ***/
+/*** feature test macros for code portability ***/
+#define _DEFAULT_SOURCE // asprintf() for linux
+#define _BSD_SOURCE // gettimeofday() for linux
+#define _GNU_SOURCE // modern glibc will complain about the above without this
 
-// feature test macros for code portability
-#define _DEFAULT_SOURCE
-#define _BSD_SOURCE
-#define _GNU_SOURCE
-
+/*** standard libraries ***/
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -18,41 +17,10 @@
 #include <time.h>
 #include <unistd.h>
 
-/*** Constant/Macro Definitions ***/
+/*** custom dependencies ***/
 
-#define EDITOR_VERSION "0.0.1"
-#define EDITOR_TAB_STOP 8
-#define EDITOR_QUIT_TIMES 3
-
-#define CTRL_KEY(k) ((k) & 0x1f)
-
-enum editorKey {
-	BACKSPACE = 127,
-	// this will autoincrement the rest of the constants
-	ARROW_LEFT = 1000,
-	ARROW_RIGHT,
-	ARROW_UP,
-	ARROW_DOWN,
-	DEL_KEY,
-	HOME_KEY,
-	END_KEY,
-	PAGE_UP,
-	PAGE_DOWN
-};
-
-enum editorHighlight {
-	HL_NORMAL = 0,
-	HL_COMMENT,
-	HL_MLCOMMENT,
-	HL_KEYWORD1,
-	HL_KEYWORD2,
-	HL_STRING,
-	HL_NUMBER,
-	HL_MATCH
-};
-
-#define HL_HIGHLIGHT_NUMBERS (1<<0)
-#define HL_HIGHLIGHT_STRINGS (1<<1)
+#include "constants.h"
+#include "enums.h"
 
 /*** Data ***/
 
