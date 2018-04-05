@@ -1,6 +1,9 @@
 # GNU compiler collection (Unix)
 CC = gcc
 
+# Emscripten compiler (for web assembly)
+ECC = emcc
+
 # Source directory
 SDIR = src
 
@@ -41,6 +44,7 @@ $(ODIR)/%.o: $(SDIR)/%.c $(DEPS)
 # $^ - special macro - include list of all files that caused the action
 editor: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
+
 
 # prevent make from doing anything with files named "clean"
 .PHONY: clean
