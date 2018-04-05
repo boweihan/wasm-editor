@@ -19,12 +19,14 @@ CFLAGS = -Wall -Werror -Wextra -std=c99
 # Dependencies which trigger re-compilation via "make"
 _DEPS = enums.h constants.h structs.h
 _DEPS += editor.h filetypes.h terminal.h highlight.h
-_DEPS += row.h
+_DEPS += row.h fileio.h input.h output.h
+_DEPS += find.h buffer.h
 DEPS = $(patsubst %, $(SDIR)/%, $(_DEPS))
 
 # Object files
 _OBJ = main.o editor.o filetypes.o terminal.o
-_OBJ += highlight.o row.o
+_OBJ += highlight.o row.o fileio.o input.o
+_OBJ += output.o find.o buffer.o
 OBJ = $(patsubst %, $(ODIR)/%, $(_OBJ))
 
 # Rule states that .o file depends on the .c version
