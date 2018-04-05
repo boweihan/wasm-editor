@@ -16,8 +16,8 @@ ODIR = obj
 # -Wextra: enable extra warning flags not implied by -Wall
 # -Wmissing-prototypes: warn if a global function is defined
 # 	without previous prototype declaration
-# -std=c99: use standard version C99 (released in 1999)
-CFLAGS = -Wall -Werror -Wextra -std=c99
+# -std=c99: use standard version C99 (released in 1999) with GNU extensions
+CFLAGS = -Wall -Werror -Wextra -std=gnu99
 
 # Dependencies which trigger re-compilation via "make"
 _DEPS = enums.h constants.h structs.h
@@ -32,6 +32,13 @@ _OBJ += highlight.o row.o fileio.o input.o
 _OBJ += output.o find.o buffer.o
 OBJ = $(patsubst %, $(ODIR)/%, $(_OBJ))
 
+# C files
+_SRC += filetypes.c terminal.c highlight.c
+_SRC += row.c input.c output.c
+_SRC += find.c buffer.c fileio.c
+_SRC += editor.c main.c
+SRC = $(patsubst %, $(SDIR)/%, $(_SRC))
+
 # Rule states that .o file depends on the .c version
 # of the file and the .h files included in the DEPS macro
 # $@ - special macro - name of file to be made
@@ -45,6 +52,8 @@ $(ODIR)/%.o: $(SDIR)/%.c $(DEPS)
 editor: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
+wasm: $(SRC)
+	$(ECC) -o $@ $^ $(CFLAGS) -s WASM=1 -o dist/editor.html
 
 # prevent make from doing anything with files named "clean"
 .PHONY: clean
