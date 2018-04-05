@@ -17,11 +17,11 @@ ODIR = obj
 CFLAGS = -Wall -Werror -Wextra -std=c99
 
 # Dependencies which trigger re-compilation via "make"
-_DEPS = enums.h constants.h structs.h filetypes.h
+_DEPS = enums.h constants.h structs.h filetypes.h terminal.h
 DEPS = $(patsubst %, $(SDIR)/%, $(_DEPS))
 
 # Object files
-_OBJ = editor.o enums.o structs.o filetypes.o
+_OBJ = editor.o filetypes.o terminal.o
 OBJ = $(patsubst %, $(ODIR)/%, $(_OBJ))
 
 # Rule states that .o file depends on the .c version
