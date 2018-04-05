@@ -21,7 +21,7 @@ _DEPS = enums.h constants.h structs.h filetypes.h
 DEPS = $(patsubst %, $(SDIR)/%, $(_DEPS))
 
 # Object files
-_OBJ = editor.o enums.o constants.o structs.o filetypes.o
+_OBJ = editor.o enums.o structs.o filetypes.o
 OBJ = $(patsubst %, $(ODIR)/%, $(_OBJ))
 
 # Rule states that .o file depends on the .c version
