@@ -1,6 +1,8 @@
 #ifndef __ROW_H__
 #define __ROW_H__
 
+#include "structs.h"
+
 // convert chars index to render index to render tabs
 int editorRowCxToRx(erow *row, int cx);
 
