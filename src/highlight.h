@@ -1,7 +1,7 @@
 #ifndef __HIGHLIGHT_H__
 #define __HIGHLIGHT_H__
 
-#include "structs.h" 
+#include "structs.h"
 
 // check if a character is a separator character (ie space)
 int is_separator(int c);
