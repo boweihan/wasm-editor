@@ -3,30 +3,9 @@
 #define _BSD_SOURCE // gettimeofday() for linux
 #define _GNU_SOURCE // modern glibc will complain about the above without this
 
-/*** standard libraries ***/
-#include <ctype.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <unistd.h>
-
-/*** custom dependencies ***/
-
-#include "constants.h"
-#include "enums.h"
 #include "structs.h"
-#include "filetypes.h"
 #include "terminal.h"
-#include "highlight.h"
-#include "row.h"
-#include "editor.h"
 #include "fileio.h"
-#include "find.h"
 #include "input.h"
 #include "output.h"
 
